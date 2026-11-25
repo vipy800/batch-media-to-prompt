@@ -977,7 +977,7 @@ function renderAbout(env, version) {
       <b>资源与开源</b>
       <div>搜源站　<a href="https://www.souyuanzhan.com/" target="_blank" rel="noopener">https://www.souyuanzhan.com/</a></div>
       <div>资源汇　<a href="https://viptu.cn/" target="_blank" rel="noopener">https://viptu.cn/</a></div>
-      <div>开源地址　<a href="https://viptu.cn/" target="_blank" rel="noopener">https://viptu.cn/</a></div>
+      <div>开源地址　<a href="https://github.com/vipy800/batch-media-to-prompt" target="_blank" rel="noopener">https://github.com/vipy800/batch-media-to-prompt</a></div>
     </div>`;
 }
 

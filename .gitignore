@@ -1,0 +1,14 @@
+# 运行时数据（不随源码分发）
+config.json
+config.json.tmp
+results.db
+results.db-*
+app.log*
+.setup_done
+uploads/
+输出/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/

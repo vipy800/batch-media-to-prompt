@@ -30,6 +30,8 @@
 
 解压后双击 `全能媒体反推.exe` 即可使用，无需安装 Python，支持 Windows 10/11 64 位。
 
+**开源地址**：[https://github.com/vipy800/batch-media-to-prompt](https://github.com/vipy800/batch-media-to-prompt)
+
 ---
 
 ## 目录
@@ -104,7 +106,7 @@
 
 ### 方式一：免安装版（推荐给普通用户）
 
-1. 从上方网盘地址，或仓库右侧 **Releases** 下载 `全能媒体反推-v4.0-免安装版.zip`
+1. 从上方网盘地址，或 [GitHub Releases](https://github.com/vipy800/batch-media-to-prompt/releases/latest) 下载 `全能媒体反推-v4.0-免安装版.zip`
 2. 解压后双击 `全能媒体反推.exe`
 3. 浏览器自动打开；进入“设置”，填写接口地址、API Key 和视觉模型
 4. 点“测试连接”，通过后保存
@@ -114,7 +116,7 @@
 
 ### 方式二：源码运行（适合二次开发）
 
-在 GitHub 页面点 **Code → Download ZIP**，或下载 Releases 中的源码包，解压后进入项目目录。
+在 [GitHub 仓库](https://github.com/vipy800/batch-media-to-prompt) 点 **Code → Download ZIP**，或下载 Releases 中的源码包，解压后进入项目目录。
 
 Windows 下双击 `start_simple.bat`，脚本会自动探测 Python、创建 `.venv`、安装依赖并启动。
 
@@ -256,11 +258,10 @@ python build.py
 
 Omni Media Prompt Reverser is a local Windows tool for batch image-to-prompt and video-to-prompt conversion. It sends your images or sampled video frames to any vision LLM you configure, then produces structured, reusable prompts for AI art, video generation, e-commerce visuals and asset tagging.
 
-Key features include 30 scene presets, 6 provider options, 1–8 concurrent workers, retry/resume, local SQLite history, and TXT/CSV/JSON/ZIP export. A portable Windows build is available via the Quark/Xunlei links above or GitHub Releases; no Python installation is required.
+Key features include 30 scene presets, 6 provider options, 1–8 concurrent workers, retry/resume, local SQLite history, and TXT/CSV/JSON/ZIP export. A portable Windows build is available via the Quark/Xunlei links above or [GitHub Releases](https://github.com/vipy800/batch-media-to-prompt/releases/latest); no Python installation is required.
 
 ---
 
 ## License
 
 Copyright © 2025–2026 AI绘画画. 授权方式以仓库根目录 `LICENSE` 文件为准。
-
