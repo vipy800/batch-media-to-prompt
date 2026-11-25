@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>全能媒体反推 · 商用版</title>
+<link rel="stylesheet" href="/static/app.css?v=20261125" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ 顶栏 ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">反</div>
+      <div>
+        <h1>全能媒体反推</h1>
+        <span class="sub">AI Vision Reverse · <span id="ver">v4.0</span></span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="pill" id="apiState"><i class="dot"></i> 检测中</span>
+      <button class="ghost" id="btnHistory">历史</button>
+      <button class="ghost" id="btnTheme" title="切换主题">◐</button>
+      <button class="primary small" id="btnSettings">设置</button>
+    </div>
+  </header>
+
+  <!-- ============ 概览 ============ -->
+  <section class="stats" id="stats">
+    <div class="stat"><span class="k">累计任务</span><b id="stJobs">0</b></div>
+    <div class="stat"><span class="k">已出结果</span><b id="stDone">0</b></div>
+    <div class="stat"><span class="k">失败</span><b id="stFail" class="warn">0</b></div>
+    <div class="stat"><span class="k">累计字符</span><b id="stChars">0</b></div>
+  </section>
+
+  <main class="grid">
+    <!-- ============ 工作台 ============ -->
+    <section class="card work">
+      <div class="card-head">
+        <h2>新建任务</h2>
+        <div class="seg" id="modeSeg">
+          <button data-mode="auto" class="on">自动</button>
+          <button data-mode="image">图片</button>
+          <button data-mode="video">视频</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab on" data-tab="upload">上传文件</button>
+        <button class="tab" data-tab="folder">扫描文件夹</button>
+      </div>
+
+      <!-- 上传 -->
+      <div class="tabpane on" id="pane-upload">
+        <div class="drop" id="drop">
+          <div class="drop-ico">＋</div>
+          <p><b>拖拽文件到这里</b>，或 <span class="link" id="pick">点击选择</span></p>
+          <small>支持 JPG / PNG / WEBP / BMP / TIFF / MP4 / MOV / MKV / AVI，可多选</small>
+          <input type="file" id="fileInput" multiple accept="image/*,video/*" hidden />
+        </div>
+        <div class="filelist" id="fileList"></div>
+      </div>
+
+      <!-- 文件夹 -->
+      <div class="tabpane" id="pane-folder">
+        <div class="row">
+          <input id="folderPath" class="input" placeholder="粘贴文件夹路径，例如 D:\素材\待处理" />
+          <button class="ghost" id="btnPickFolder">浏览…</button>
+        </div>
+        <label class="check"><input type="checkbox" id="recursive" checked /> 包含子文件夹</label>
+        <div class="hint" id="folderHint">支持批量扫描本地文件夹，结果可保存回源目录</div>
+      </div>
+
+      <!-- 参数 -->
+      <div class="params">
+        <div class="row">
+          <label>图片提示词</label>
+          <div class="selrow">
+            <select id="presetSel" class="input"></select>
+            <button class="ghost sm" id="btnCustomPrompt" title="用自己写的提示词">自定义</button>
+          </div>
+        </div>
+        <div class="row" id="videoPresetRow">
+          <label>视频提示词</label>
+          <select id="videoPresetSel" class="input"></select>
+        </div>
+        <div id="customPromptBox" hidden>
+          <textarea id="customPrompt" class="input" rows="5" placeholder="写你要的反推要求，例如：只输出一段可直接用于 SDXL 的中文提示词，重点描述人物姿势、服装材质和光线方向；不要解释。"></textarea>
+          <div class="rowline">
+            <label class="check"><input type="checkbox" id="customPromptVideo" /> 视频也用这段</label>
+            <span class="hint" id="cpCount">0 字</span>
+            <button class="ghost sm" id="btnSaveAsPreset">存为我的预设</button>
+          </div>
+          <div class="rowline" id="savePresetRow" hidden>
+            <input id="newPresetName" class="input" placeholder="预设名字，如「我的电商词」" style="flex:1" />
+            <button class="ghost sm" id="btnConfirmSave">保存</button>
+            <button class="ghost sm" id="btnCancelSave">取消</button>
+          </div>
+        </div>
+        <div class="row">
+          <label>模型</label>
+          <input id="modelInput" class="input" list="modelList" placeholder="模型名称" />
+          <datalist id="modelList"></datalist>
+        </div>
+        <div class="row">
+          <label>并发 <b id="concVal">3</b></label>
+          <input type="range" id="concRange" min="1" max="8" step="1" value="3" />
+        </div>
+        <div class="row toggles">
+          <label class="check"><input type="checkbox" id="optSource" /> 结果存到源文件目录</label>
+          <label class="check"><input type="checkbox" id="optSkip" /> 跳过已有结果</label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary big" id="btnStart">开始批量反推</button>
+        <button class="ghost" id="btnClearFiles">清空</button>
+      </div>
+      <p class="hint" id="startHint"></p>
+    </section>
+
+    <!-- ============ 空状态引导 ============ -->
+    <section class="card guide" id="guideCard">
+      <h2>就这样用</h2>
+      <ol class="steps">
+        <li><b>放素材</b> 拖入图片/视频，或填写本地文件夹路径批量扫描</li>
+        <li><b>选预设</b> 标准反推 / 英文提示词 / 风格解析 / 画质质检，也可在设置里自定义</li>
+        <li><b>开始反推</b> 并发可调，支持暂停、继续、取消、失败重试</li>
+        <li><b>拿结果</b> 逐条复制，或一键导出 TXT / CSV / 清单压缩包，结果同时写入「输出」目录</li>
+      </ol>
+      <div class="tips">
+        <div class="tip"><span>省 token</span>图片自动压缩到 1600px，画质足够反推细节</div>
+        <div class="tip"><span>视频</span>默认 9 帧拼成一张触点图，速度快、成本低</div>
+        <div class="tip"><span>批量</span>并发 3 起步；额度紧张时降到 1-2，避免 429 限流</div>
+        <div class="tip"><span>断点</span>任务写入本地数据库，重启后可查看历史并重试失败项</div>
+      </div>
+    </section>
+
+    <!-- ============ 任务面板 ============ -->
+    <section class="card job" id="jobCard" hidden>
+      <div class="card-head">
+        <h2 id="jobName">任务</h2>
+        <span class="pill" id="jobStatus">运行中</span>
+      </div>
+      <div class="progress"><div class="bar" id="jobBar"></div></div>
+      <div class="jobmeta">
+        <span>进度 <b id="jobPct">0%</b></span>
+        <span>完成 <b id="jobDone">0</b></span>
+        <span>失败 <b id="jobFail" class="warn">0</b></span>
+        <span>剩余 <b id="jobLeft">0</b></span>
+        <span>预计 <b id="jobEta">—</b></span>
+      </div>
+      <div class="actions">
+        <button class="ghost" id="btnPause">暂停</button>
+        <button class="ghost" id="btnResume" hidden>继续</button>
+        <button class="ghost" id="btnRetry">重试失败</button>
+        <button class="ghost danger" id="btnCancel">取消</button>
+        <button class="ghost" id="btnExportZip" title="每条提示词一行，可直接整段复制">导出 TXT（一行一条）</button>
+        <button class="ghost" id="btnExportCsv">导出 CSV</button>
+        <button class="ghost" id="btnOpenOut">打开目录</button>
+      </div>
+      <div class="filters">
+        <button class="chip on" data-filter="all">全部 <b id="cAll">0</b></button>
+        <button class="chip" data-filter="done">完成 <b id="cDone">0</b></button>
+        <button class="chip" data-filter="failed">失败 <b id="cFail">0</b></button>
+        <button class="chip" data-filter="running">进行中 <b id="cRun">0</b></button>
+      </div>
+      <div class="items" id="items"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ 设置弹窗 ============ -->
+<div class="modal" id="settingsModal" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>设置</h3><button class="x" data-close>✕</button>
+    </div>
+    <div class="sheet-tabs">
+      <button class="stab on" data-stab="api">接口</button>
+      <button class="stab" data-stab="proc">处理参数</button>
+      <button class="stab" data-stab="preset">提示词</button>
+      <button class="stab" data-stab="check">自检</button>
+      <button class="stab" data-stab="about">关于</button>
+    </div>
+
+    <div class="stabpane on" id="stab-api">
+      <div class="hint" style="margin-bottom:10px">点卡片自动填好接口地址与模型，只需补 API Key；也可以直接用「通用接口」填任意 OpenAI 兼容地址。</div>
+      <div class="provgrid" id="provGrid"></div>
+      <label class="field">API Key
+        <span style="display:flex;gap:8px;align-items:center">
+          <input id="cfgKey" class="input" type="password" placeholder="sk-..." autocomplete="off" />
+          <button class="ghost sm" id="btnClearKey" type="button" hidden>清除已存 Key</button>
+        </span>
+        <span class="hint" id="keyHint">Key 只保存在本机 config.json，页面不再回显完整密钥；留空保存表示沿用已保存的 Key。</span>
+      </label>
+      <label class="field">接口地址（OpenAI 兼容）
+        <input id="cfgBase" class="input" placeholder="https://api.siliconflow.cn/v1" />
+      </label>
+      <div class="localbar">
+        <span class="lb-label">本地接口快捷填入</span>
+        <button class="chip2" data-port="11434">Ollama 11434</button>
+        <button class="chip2" data-port="1234">LM Studio 1234</button>
+        <button class="chip2" data-port="8080">llama.cpp 8080</button>
+        <button class="chip2" data-port="8000">vLLM 8000</button>
+        <button class="ghost sm" id="btnProbeLocal">检测本机服务</button>
+      </div>
+      <div class="hint" id="probeHint" hidden></div>
+      <label class="field">默认图片模型
+        <input id="cfgModel" class="input" list="modelList" placeholder="填好 Key 后会自动拉取模型列表" />
+      </label>
+      <label class="field">默认视频模型
+        <input id="cfgVideoModel" class="input" list="modelList" />
+      </label>
+      <div class="field full">
+        <div class="modeltop">
+          <button class="ghost sm" id="btnFetchModels">拉取可用模型</button>
+          <span class="hint" id="modelHint">填完 Key / 地址会自动检测</span>
+        </div>
+        <input id="modelFilter" class="input" placeholder="搜索模型名，如 vl / qwen / glm" hidden />
+        <div class="modelbox" id="modelBox" hidden></div>
+      </div>
+      <div class="row">
+        <button class="ghost" id="btnTest">测试连接</button>
+        <span class="hint" id="testResult"></span>
+      </div>
+    </div>
+
+    <div class="stabpane" id="stab-proc">
+      <div class="two">
+        <label class="field">图片最长边 (px)<input id="cfgMaxSide" class="input" type="number" min="640" max="4096" /></label>
+        <label class="field">JPEG 质量<input id="cfgQuality" class="input" type="number" min="50" max="100" /></label>
+        <label class="field">视频抽帧数<input id="cfgFrames" class="input" type="number" min="3" max="40" /></label>
+        <label class="field">视频帧最长边<input id="cfgVidSide" class="input" type="number" min="480" max="2048" /></label>
+        <label class="field">默认并发<input id="cfgConc" class="input" type="number" min="1" max="8" /></label>
+        <label class="field">超时（秒）<input id="cfgTimeout" class="input" type="number" min="10" max="7200" step="10" /></label>
+        <div class="field full">
+          <span class="flabel">超时快捷值</span>
+          <div class="localbar" style="margin:0">
+            <button class="chip2" data-timeout="300">300 秒</button>
+            <button class="chip2" data-timeout="600">600 秒</button>
+            <button class="chip2" data-timeout="1200">1200 秒</button>
+            <button class="chip2" data-timeout="3600">3600 秒</button>
+            <span class="lb-label">可填 10–7200 秒（最长 2 小时），本地大模型建议 600 起</span>
+          </div>
+        </div>
+        <label class="field">失败重试次数<input id="cfgRetries" class="input" type="number" min="1" max="6" /></label>
+        <label class="field">输出目录<input id="cfgOutput" class="input" placeholder="留空=程序目录下 输出/" /></label>
+      </div>
+      <div class="row"><label class="check"><input type="checkbox" id="cfgGrid" /> 视频抽帧拼图（多帧合成一张，速度快、更省 token）</label></div>
+      <div class="row"><button class="ghost" id="btnPickOutput">选择输出目录</button></div>
+      <div class="hint">图片压缩可显著降低 token 消耗，1600px 通常足够反推细节。</div>
+    </div>
+
+    <div class="stabpane" id="stab-preset">
+      <div class="row">
+        <select id="presetManage" class="input"></select>
+        <button class="ghost" id="btnPresetNew">新建</button>
+        <button class="ghost danger" id="btnPresetDel">删除</button>
+      </div>
+      <label class="field">名称<input id="presetName" class="input" /></label>
+      <label class="field">类型
+        <select id="presetKind" class="input">
+          <option value="image">图片</option>
+          <option value="video">视频</option>
+        </select>
+      </label>
+      <label class="field">提示词内容<textarea id="presetText" class="input" rows="12"></textarea></label>
+      <div class="hint">内置预设不可删除；自定义预设保存在本地 config.json。</div>
+    </div>
+
+    <div class="stabpane" id="stab-check">
+      <div class="checkhead">
+        <div>
+          <b>一键自检</b>
+          <div class="hint">按真实接口跑一遍：地址 / Key / 模型 / 写盘 / 看图，逐项给结论和修法。</div>
+        </div>
+        <button class="ghost" id="btnSelfCheck">开始自检</button>
+      </div>
+      <div class="hint" id="checkSummary">点「开始自检」，约 10–30 秒出结果（会真实调用一次模型，消耗极少额度）。</div>
+      <div class="checklist" id="checkList"></div>
+    </div>
+
+    <div class="stabpane" id="stab-about">
+      <div id="aboutBox" class="about"></div>
+      <div class="row">
+        <button class="ghost" id="btnClean">清理上传缓存</button>
+        <button class="ghost danger" id="btnClearHistory">清空历史记录</button>
+        <button class="ghost" id="btnLogs">查看日志</button>
+      </div>
+      <pre class="logbox" id="logBox" hidden></pre>
+    </div>
+
+    <div class="sheet-foot">
+      <span class="hint" id="saveHint"></span>
+      <button class="primary" id="btnSaveCfg">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 详情弹窗 ============ -->
+<div class="modal" id="itemModal" hidden>
+  <div class="sheet wide">
+    <div class="sheet-head">
+      <h3 id="imTitle">结果</h3><button class="x" data-close>✕</button>
+    </div>
+    <div class="detail">
+      <div class="detail-left"><img id="imThumb" alt="" /><div id="imMeta" class="meta"></div></div>
+      <textarea id="imText" class="input mono" spellcheck="false"></textarea>
+    </div>
+    <div class="sheet-foot">
+      <span class="hint" id="imHint"></span>
+      <button class="ghost" id="imCopy">复制</button>
+      <button class="ghost" id="imRerun">重新反推</button>
+      <button class="primary" id="imSave">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 历史弹窗 ============ -->
+<div class="modal" id="historyModal" hidden>
+  <div class="sheet wide">
+    <div class="sheet-head"><h3>历史记录</h3><button class="x" data-close>✕</button></div>
+    <div class="row">
+      <input id="hq" class="input" placeholder="搜索任务名 / 预设 / 模型" />
+      <button class="ghost" id="btnHQuery">搜索</button>
+      <button class="ghost" id="btnRefreshH">刷新</button>
+    </div>
+    <div class="history" id="historyList"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="/static/app.js?v=20261125"></script>
+</body>
+</html>
+

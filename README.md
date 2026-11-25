@@ -247,4 +247,3 @@ Key features include 30 scene presets, 6 provider options, 1–8 concurrent work
 ## License
 
 Copyright © 2025–2026 AI绘画画. 授权方式以仓库根目录 `LICENSE` 文件为准。
-
